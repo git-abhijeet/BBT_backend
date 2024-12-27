@@ -1,5 +1,7 @@
 const transporter = require('../config/emailConfig');
+const dotenv = require('dotenv');
 
+dotenv.config();
 
 const sendWelcomeEmail = (recipientEmail, firstName, lastName, userName, mobileNum, password) => {
     const mailOptions = {
@@ -47,6 +49,15 @@ const sendWelcomeEmail = (recipientEmail, firstName, lastName, userName, mobileN
                         color: #888;
                         margin-top: 20px;
                     }
+                    .login-link {
+                        display: inline-block;
+                        margin-top: 20px;
+                        padding: 10px 20px;
+                        background-color: #007BFF;
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 4px;
+                    }
                 </style>
             </head>
             <body>
@@ -62,6 +73,7 @@ const sendWelcomeEmail = (recipientEmail, firstName, lastName, userName, mobileN
                         <p><strong>Your Password:</strong> ${password}</p>
                     </div>
                     <p>If you have any questions, feel free to reach out to us.</p>
+                    <a href="${process.env.LOGIN_URL}" class="login-link">Login to Your Account</a>
                     <p>Best regards,<br>The Team</p>
                 </div>
                 <div class="footer">

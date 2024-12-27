@@ -9,20 +9,56 @@ const { uploadFile } = require('../utils/fileUpload');
 const signupUser = async (req, res) => {
     try {
         const { firstName, lastName, userName, email, mobileNum } = req.body;
-        console.log("🚀 ~ signupUser ~ req.body:", req.body)
+
+        if (!firstName || !lastName || !userName || !email || !mobileNum) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        if (userName.includes(' ')) {
+            return res.status(400).json({ message: 'Username cannot contain spaces' });
+        }
+
+        if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
+        if (!/^[0-9]{10}$/.test(mobileNum)) {
+            return res.status(400).json({ message: 'Mobile number must be 10 digits' });
+        }
+
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return res.status(400).json({ message: 'Email already registered' });
+        }
+
+        const existingUserName = await User.findOne({ userName });
+        if (existingUserName) {
+            return res.status(400).json({ message: 'Username already taken' });
+        }
+
+        const existingmobileNum = await User.findOne({ mobileNum });
+        if (existingmobileNum) {
+            return res.status(400).json({ message: 'mobileNum already taken' });
+        }
 
         const password = generatePassword(firstName, lastName, mobileNum);
-        console.log("🚀 ~ signupUser ~ password:", password)
-
         const hashedPassword = await bcrypt.hash(password, 10);
-        console.log("🚀 ~ signupUser ~ hashedPassword:", hashedPassword)
 
-        const newUser = new User({ firstName, lastName, userName, email, mobileNum, password: hashedPassword });
-        await newUser.save();
+        const newUser = new User({
+            firstName,
+            lastName,
+            userName,
+            email,
+            mobileNum,
+            password: hashedPassword
+        });
+
+        let response = await newUser.save();
+        console.log("🚀 ~ signupUser ~ response:", response)
 
         // Send welcome email
         await sendWelcomeEmail(email, firstName, lastName, userName, mobileNum, password);
-        res.status(201).json({ message: 'User signed up', user: newUser });
+        res.status(201).json({ message: 'User signed up successfully', user: newUser });
     } catch (error) {
         res.status(500).json({ message: 'Error signing up user', error });
     }

@@ -53,14 +53,25 @@ const uploadVideo = async (req, res) => {
 
 const getVideos = async (req, res) => {
     try {
-        const { userId } = req.params;
-        const query = userId ? { user: userId } : {};
-        const videos = await Video.find(query).populate('user', 'email firstName userName imgUrl');
-        console.log("🚀 ~ getVideos ~ videos:", videos)
+        const { userName } = req.params;
+        console.log("🚀 ~ getVideos ~ userName:", userName);
+
+        let videos;
+        if (userName) {
+            const user = await User.findOne({ userName });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            videos = await Video.find({ user: user._id }).populate('user', 'email firstName userName imgUrl');
+        } else {
+            videos = await Video.find().populate('user', 'email firstName userName imgUrl');
+        }
+
         res.status(200).json({ data: videos });
     } catch (error) {
+        console.log("🚀 ~ getVideos ~ error:", error);
         res.status(500).json({ message: 'Error fetching videos', error });
     }
-}
+};
 
 module.exports = { uploadVideo, getVideos };

@@ -6,6 +6,6 @@ const { videoUpload } = require('../utils/fileUpload');
 const router = express.Router();
 
 router.post('/uploadVideo/:userId', authMiddleware, videoUpload.single('video'), uploadVideo);
-router.get('/getVideos/:userId?', authMiddleware, getVideos);
+router.get('/getVideos/:userName?', authMiddleware, getVideos);
 
 module.exports = router;

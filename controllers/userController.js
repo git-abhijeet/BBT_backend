@@ -72,12 +72,12 @@ const loginUser = async (req, res) => {
         const user = await User.findOne({ userName });
         console.log("🚀 ~ loginUser ~ user:", user)
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Invalid Username' });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         console.log("🚀 ~ loginUser ~ isMatch:", isMatch)
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentialscsnjanckan' });
+            return res.status(400).json({ message: 'Invalid Password' });
         }
         const token = jwt.sign({ user: { id: user.id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
         console.log("🚀 ~ loginUser ~ token:", token)
@@ -114,7 +114,9 @@ const updateProfile = async (req, res) => {
             user.imgUrl = result.url;
         }
         const { bio } = req.body;
+        console.log("🚀 ~ updateProfile ~ bio:", bio)
 
+        console.log("🚀 ~ updateProfile ~ bio.length:", bio.length)
         if (bio && bio.length > 500) {
             return res.status(400).json({ message: 'Bio must not exceed 500 characters.' });
         }

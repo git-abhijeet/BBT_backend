@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { generatePassword } = require('../utils/generatePassword');
 const { sendWelcomeEmail } = require('../utils/sendEmail');
 const { uploadFile } = require('../utils/fileUpload');
+const sharp = require('sharp');
 
 // Signup a new user
 const signupUser = async (req, res) => {
@@ -106,17 +107,27 @@ const updateProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
         if (req.file) {
-            const img = req.file
-            console.log("🚀 ~ updateProfile ~ img:", img)
+            const img = req.file;
+            console.log("🚀 ~ updateProfile ~ img:", img);
+
+            // Check image dimensions
+            const metadata = await sharp(img.buffer).metadata();
+            if (metadata.width > 500 || metadata.height > 500) {
+                return res.status(400).json({
+                    message: 'Image dimensions must not exceed 500x500 pixels. current size: ' + `${metadata.width}x${metadata.height} px`,
+                });
+            }
+
             const result = await uploadFile(img.buffer, img.originalname, 'profile', ['profile']);
             user.imgThumbnailUrl = result.thumbnailUrl;
             user.imgUrl = result.url;
         }
-        const { bio } = req.body;
-        console.log("🚀 ~ updateProfile ~ bio:", bio)
 
-        console.log("🚀 ~ updateProfile ~ bio.length:", bio.length)
+        const { bio } = req.body;
+        console.log("🚀 ~ updateProfile ~ bio:", bio);
+
         if (bio && bio.length > 500) {
             return res.status(400).json({ message: 'Bio must not exceed 500 characters.' });
         }
@@ -127,7 +138,7 @@ const updateProfile = async (req, res) => {
 
         res.status(200).json({ message: 'Profile updated successfully', user });
     } catch (error) {
-        console.log("🚀 ~ updateProfile ~ error:", error)
+        console.log("🚀 ~ updateProfile ~ error:", error);
         res.status(500).json({ message: 'Error updating profile', error });
     }
 };

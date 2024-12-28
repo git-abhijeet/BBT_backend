@@ -6,7 +6,7 @@ const imagekit = require('../config/imageConfig');
 
 // File type filter for images
 const imageFileFilter = (req, file, cb) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png'];
     if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true); // Accept the file
     } else {
@@ -17,11 +17,11 @@ const imageFileFilter = (req, file, cb) => {
 // File type filter for videos
 const videoFileFilter = (req, file, cb) => {
     console.log("🚀 ~ videoFileFilter ~ file:", file)
-    const allowedMimeTypes = ['video/mp4', 'video/avi', 'video/mov'];
+    const allowedMimeTypes = ['video/mp4', 'video/avi'];
     if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true); // Accept the file
     } else {
-        cb(new Error('Only video files (mp4, avi, mov) are allowed!'), false);
+        cb(new Error('Only video files (mp4, avi) are allowed!'), false);
     }
 };
 
